@@ -1,11 +1,11 @@
-=== WP MapEditor ===
+=== WP Map Editor ===
 Contributors: TigrouMeow
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=H2S7S3G4XMJ6J
 Tags: map, maps, editor, google, googlemaps, location, pin, plugin
 License: GPLv2 or later
 Requires at least: 3.5
 Tested up to: 4.2.2
-Stable tag: 0.0.1
+Stable tag: 0.0.2
 
 Create your own maps to plan your future travels and explorations while keeping track of locations you have visited.
 
@@ -14,6 +14,8 @@ Create your own maps to plan your future travels and explorations while keeping 
 Do you love traveling and sightseeing? Do you need to keep track of the locations you have visited, the one you would like to visit and the one you absolutely need to visit? Do you need to filter by their type, by season? That's exactly what this Map Editor is about.
 
 Please be aware that this map editor is still in its early stage of development. It is fully working and has a lot of features but a lot more will come later. Please come to the forum and tell me what you need, this plugin will evolve a lot depending on its users while staying consistent.
+
+The basic version is fully functional and will be kept clean and usable for a normal user. If you need advanced functions, they will be shipped with the Pro version. It allows me to maintain the core plugin excellent and clean while working dutifully on the features for the more demanding Pro users :) Thank you.
 
 Languages: English.
 
@@ -24,6 +26,9 @@ Languages: English.
 3. If it doesn't work for you, read the tutorial and ask questions in the forum.
 
 == Changelog ==
+
+= 0.0.2 =
+* Name fix.
 
 = 0.0.1 =
 * Very first release.

@@ -3,23 +3,23 @@
 *****************************/
 
 .modal {
-    width: inherit;
-    margin-left: inherit;
-    background-color: inherit;
+	width: inherit;
+	margin-left: inherit;
+	background-color: inherit;
 }
 
 .btn-group > .btn {
-    font-size: 12px;
-    text-shadow: inherit;
+	font-size: 12px;
+	text-shadow: inherit;
 }
 
 .btn {
-    text-shadow: inherit;
-    box-shadow: inherit;
+	text-shadow: inherit;
+	box-shadow: inherit;    
+}
 
-    .caret {
-    	  margin-top: inherit;
-    }
+.btn .caret {
+	margin-top: inherit;
 }
 
 /*****************************

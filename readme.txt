@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: map, maps, editor, google, googlemaps, location, pin, plugin
 License: GPLv2 or later
 Requires at least: 3.5
-Tested up to: 4.2.2
-Stable tag: 0.0.2
+Tested up to: 4.3
+Stable tag: 0.1.0
 
 Create your own maps to plan your future travels and explorations while keeping track of locations you have visited.
 
@@ -26,6 +26,9 @@ Languages: English.
 3. If it doesn't work for you, read the tutorial and ask questions in the forum.
 
 == Changelog ==
+
+= 0.1.0 =
+* Tiny improvements.
 
 = 0.0.2 =
 * Name fix.

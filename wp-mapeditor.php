@@ -3,14 +3,14 @@
 Plugin Name: WP Map Editor
 Plugin URI: http://apps.meow.fr
 Description: Create your own maps to plan your future travels and explorations while keeping track of locations you have visited.
-Version: 0.0.2
+Version: 0.1.0
 Author: Jordy Meow
 Author URI: http://apps.meow.fr
 */
 
 class Meow_MapEditor {
 
-	public $version = '0.0.2';
+	public $version = '0.1.0';
 
 	public function __construct() {
 		if ( $this->is_pro() || is_super_admin() ) {
@@ -18,6 +18,10 @@ class Meow_MapEditor {
 			add_action( 'add_meta_boxes', array( $this, 'add_location_metaboxes' ) );
 			add_action( 'save_post', array( $this, 'save_location_metaboxes' ), 1, 2 );
 		}
+		//add_action( 'the_post', array( $this, 'modify_the_post' ) );
+		add_action( 'wp_head', array( $this, 'wp_head_default_css' ) );
+		add_filter( 'the_content', array( $this, 'modify_the_content' ), 1, 2 );
+		add_filter( 'the_post_thumbnail', array( $this, 'modify_the_post_thumbnail' ), 1, 2 );
 	}
 
 	public static function activate() {
@@ -26,12 +30,99 @@ class Meow_MapEditor {
 	}
 
 	/***********************
+		DISPLAY
+	************************/
+
+	function get_upload_root()
+	{
+		$uploads = wp_upload_dir();
+		return $uploads['basedir'];
+	}
+
+	function get_location_info( $id ) {
+		$type = get_post_meta( $id, 'wme_type', true );
+		$period = get_post_meta( $id, 'wme_period', true );
+		$status = get_post_meta( $id, 'wme_status', true );
+		$rating = get_post_meta( $id, 'wme_rating', true );
+		$coordinates = get_post_meta( $id, 'wme_coordinates', true );
+		$difficulty = get_post_meta( $id, 'wme_difficulty', true );
+		return array(
+			'type' => $type,
+			'period' => $period,
+			'status' => $status,
+			'rating' => $rating,
+			'coordinates' => $coordinates,
+			'difficulty' => $difficulty
+		);
+	}
+
+	function wp_head_default_css() {
+		echo '
+		<style>
+			.wme-info {
+				text-align: center;
+				border: 1px solid rgb(208, 208, 208);
+				padding: 5px;
+				margin-bottom: 20px;
+			}
+
+			.wme-info ul {
+				list-style-type: none;
+				margin: 0px;
+			}
+		</style>
+		';
+	}
+
+	function modify_the_content( $post ) {
+
+		if ( get_post_type( $post ) != 'location' ) {
+			return;
+		}
+
+		$id = get_the_id();
+		$thumb = get_the_post_thumbnail( $id );
+		$locinfo = $this->get_location_info( $id );
+
+		if ( empty( $thumb ) && !empty( $locinfo['coordinates'] ) ) {
+			if ( !file_exists( trailingslashit( $this->get_upload_root() ) . "wme-tmp" ) )
+				mkdir( trailingslashit( $this->get_upload_root() ) . "wme-tmp" );
+			$file = tempnam( trailingslashit( $this->get_upload_root() ) . "wme-tmp", "wme_" );
+			if ( copy( 'http://maps.googleapis.com/maps/api/staticmap?center=' . $locinfo['coordinates'] . '&zoom=14&size=600x600&maptype=terrain&markers=color:red%7Clabel:%7C' . $locinfo['coordinates'], $file ) ) {
+				wp_insert_attachment( array(
+					'post_title' => 'MAP #' . $id,
+					'post_mime_type' => 'image/png',
+					'post_status' => 'inherit'
+				), $file, $id );
+				unlink( $file );
+			}
+		}
+
+		//$html = '<img src=""></img>';
+		$html = $post;
+		$html = $html . '<div class="wme-info">';
+		$html = $html . '<ul>';
+		$html = $html . '<li>Coordinates: ' . $locinfo['coordinates'] . '</li>';
+		$html = $html . '<li>Type: ' . $locinfo['type'] . '</li>';
+		$html = $html . '<li>Status: ' . $locinfo['status'] . '</li>';
+		$html = $html . '<li>Difficulty: ' . $locinfo['difficulty'] . '</li>';
+		$html = $html . '<li>Period: ' . $locinfo['period'] . '</li>';
+		$html = $html . '</ul>';
+		$html = $html . '</div">';
+		return $html;
+	}
+
+	function the_post_thumbnail( $thumb ) {
+		exit;
+	}
+
+	/***********************
 		ROLES AND CAPABILITY
 	************************/
 
 	public static function create_roles() {
 		$capabilities = array( 'publish','delete','delete_private','delete_published','edit','edit_private','edit_published','read_private' );
-		
+
 		// For Map Editor
 		remove_role( "map_editor" );
 		$maprole = add_role( "map_editor" , "Map Editor" );
@@ -51,7 +142,7 @@ class Meow_MapEditor {
 
 	public static function get_db_role() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . "wme_role"; 
+		$table_name = $wpdb->prefix . "wme_role";
 		return $table_name;
 	}
 
@@ -89,7 +180,7 @@ class Meow_MapEditor {
 
 	/******************************
 		DASHBOARD
-	******************************/	
+	******************************/
 
 	function is_map_editor() {
 		global $current_user;
@@ -167,7 +258,7 @@ class Meow_MapEditor {
 
 	/******************************
 		COLUMNS
-	******************************/	
+	******************************/
 
 	function manage_location_posts_columns( $cols ) {
 		$cols["wme_type"] = "Type";
@@ -230,7 +321,7 @@ class Meow_MapEditor {
 
 	/**
 	 *
-	 * PRO 
+	 * PRO
 	 * Come on, it's not so expensive :'(
 	 *
 	 */
@@ -257,7 +348,8 @@ class Meow_MapEditor {
 		require_once $this->get_wordpress_root() . WPINC . '/class-IXR.php';
 		require_once $this->get_wordpress_root() . WPINC . '/class-wp-http-ixr-client.php';
 		$client = new WP_HTTP_IXR_Client( 'http://apps.meow.fr/xmlrpc.php' );
-		if ( !$client->query( 'meow_sales.auth', $subscr_id, 'retina', get_site_url() ) ) { 
+		$client->useragent = 'MeowApps';
+		if ( !$client->query( 'meow_sales.auth', $subscr_id, 'retina', get_site_url() ) ) {
 			update_option( 'wme_pro_serial', "" );
 			update_option( 'wme_pro_status', "A network error: " . $client->getErrorMessage() );
 			set_transient( 'wme_validated', false, 0 );
@@ -378,7 +470,7 @@ class Meow_MapEditor {
 		$table = $this->get_db_role();
 		$user_id = get_current_user_id();
 		$lastticked = get_transient( "wme_lastticked_" . $user_id );
-		$results = $wpdb->get_results( 
+		$results = $wpdb->get_results(
 			"SELECT t.term_id id, t.name name, 0 ticked
 			FROM $table r, $wpdb->terms t
 			WHERE r.term_id = t.term_id"
@@ -404,7 +496,7 @@ class Meow_MapEditor {
 
 	function display_map_coordinates() {
 		global $post;
-		echo '<input type="hidden" name="map_meta_noncename" id="map_meta_noncename" value="' . 
+		echo '<input type="hidden" name="map_meta_noncename" id="map_meta_noncename" value="' .
 		wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 		$wme_coordinates = get_post_meta($post->ID, 'wme_coordinates', true);
 		echo '<input type="text" name="wme_coordinates" value="' . $wme_coordinates  . '" class="widefat" />';
@@ -430,7 +522,7 @@ class Meow_MapEditor {
 				update_post_meta($post->ID, $key, $value);
 			else
 				add_post_meta($post->ID, $key, $value);
-			if ( !$value ) 
+			if ( !$value )
 				delete_post_meta( $post->ID, $key );
 		}
 	}
@@ -517,7 +609,7 @@ class Meow_MapEditor {
 
 		register_taxonomy( 'map', array( 'location' ), $args );
 	}
-		
+
 }
 
 add_action( 'plugins_loaded', 'meow_map_editor_init' );

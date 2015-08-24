@@ -24,7 +24,7 @@ class Meow_MapEditor_Server extends Meow_MapEditor {
 			$query->set( 'author', $user_id );
 		}
 	}
-	
+
 	function list_terms_exclusions( $exclusions, $args ) {
 		global $wpdb;
 		if ( is_super_admin() )
@@ -41,7 +41,7 @@ class Meow_MapEditor_Server extends Meow_MapEditor {
 			remove_menu_page( 'edit-tags.php?taxonomy=category' );
 			remove_menu_page( 'edit-tags.php?taxonomy=post_tag' );
 		}
-		$editor_menu = add_menu_page( 'Map Editor', 'Map Editor', 'edit_maps', 'map_editor', array( $this, 'map_editor' ), 'dashicons-admin-site', 30 );
+		$editor_menu = add_menu_page( 'Map Editor', 'Map Editor', 'edit_maps', 'map_editor', array( $this, 'map_editor' ), 'dashicons-location-alt', 30 );
 		add_action( 'admin_print_scripts-' . $editor_menu, array( $this, 'map_editor_js' ) );
 		add_action( 'admin_print_styles-' . $editor_menu, array( $this, 'map_editor_css' ) );
 	}
@@ -55,7 +55,7 @@ class Meow_MapEditor_Server extends Meow_MapEditor {
 		wp_enqueue_script( 'bootstrap', plugins_url( '/js/bootstrap.min.js', __FILE__ ), array(), "3.3.4", false );
 		wp_enqueue_script( 'angular', plugins_url( '/js/angular.min.js', __FILE__ ), array(), "1.4.0-rc2", false );
 		wp_enqueue_script( 'multi-select', plugins_url( '/js/isteven-multi-select.js', __FILE__ ), array( 'angular' ), "4.0.0", false );
-		
+
 		// Google Maps
 		$gmaps_apikey = $this->get_option( 'gmaps_apikey', 'wme_basics', '' );
 		wp_enqueue_script( 'gmap', 'https://maps.googleapis.com/maps/api/js?key=' . $gmaps_apikey, array(), '', false );
@@ -185,7 +185,7 @@ class Meow_MapEditor_Server extends Meow_MapEditor {
 				'post_title' => $location->name,
 				'post_content' => $location->description
 			),
-			array( 'ID' => $location->id ), 
+			array( 'ID' => $location->id ),
 			array( '%s', '%s' ), array( '%d' ) );
 			$this->update_meta( $location->id, 'wme_type', $location->type );
 			$this->update_meta( $location->id, 'wme_period', $location->period );
